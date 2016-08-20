@@ -1,0 +1,13 @@
+<b>SLAs</b>
+<div class="slas"
+  <% @settings[:SLAs].each do |sla| %>
+    <div class="sla">
+      <select name="settings[SLAs][][type]">
+        <option value="tracker">Tracker</option>
+        <option value="priority">Priority</option>
+      </select>
+      <input type="text" name="settings[SLAs][][name]" value="<%= sla.name %>" />
+      <input type="text" name="settings[SLAs][][secToComplete]" value="<%= sla.secToComplete %>" />
+    </div>
+  <% end %>
+</div>
