@@ -1,0 +1,50 @@
+<style>
+  div.userStats td {
+    padding:10px;
+    font-size:14px;
+    border-bottom:1px solid #CCCCCC;
+  }
+  div.userStats thead td {
+    font-size:16px;
+    text-align:center;
+    font-weight: bold;
+  }
+</style>
+<h2>Average User Hold Up</h2>
+<div class="userStats">
+  <table>
+    <thead>
+      <td>Last Name</td>
+      <td>First Name</td>
+      <td>Avg Wait Time</td>
+      <td>Total Wait Time</td>
+      <td>Total Assigned Issues</td>
+    </thead>
+    <tbody>
+      <% @userStats.each do |user| %>
+        <%
+          avgWaitTime = 0
+          avgWaitTimeString = ""
+          totalWaitTimeString = ""
+          if user[1]['issues'].count > 0
+            avgWaitTime = user[1]['totalWaitTime'] / user[1]['issues'].count
+            avgWaitTimeString = distance_of_time_in_words(avgWaitTime)
+            totalWaitTimeString = distance_of_time_in_words(user[1]['totalWaitTime'])
+          end
+        %>
+        <tr>
+          <td><%= user[1]['user']['lastname'] %></td>
+          <td><%= user[1]['user']['firstname'] %></td>
+          <td><%= avgWaitTimeString %></td>
+          <td><%= totalWaitTimeString %></td>
+          <td style='text-align:center'>
+            <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=assigned_to_id&op%5Bassigned_to_id%5D=%3D&v%5Bassigned_to_id%5D%5B%5D=<%= user[1]['user']['id'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=">
+              <%= user[1]['issues'].count %>
+            </a>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+* Note that all stats listed above are from current OPEN issues.

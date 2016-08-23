@@ -1,0 +1,57 @@
+<style>
+  .sla {
+    margin-top:20px;
+    display:block;
+  }
+  .sla_name {
+    font-weight:bold;
+  }
+  .sla_info {
+    font-size:10px;
+    line-height: 16px;
+    text-align:left;
+    margin-bottom:20px;
+  }
+</style>
+
+<h2>SLA Report</h2>
+<div class="slas">
+  <% @slaReport.each_with_index do |sla,id| %>
+    <div class="sla">
+      <div class="sla_name">
+        <%= sla[1]['name'] %> - <%= sla[1]['daysToResolve'] %> Days
+      </div>
+      <% if sla[1]['totalIssues'] > 0 %>
+        <% percentClosed = ( sla[1]['closedIssues'].to_f / sla[1]['totalIssues'].to_f ) * 100 %>
+        <% percentOpenInSLA = ( sla[1]['openInSlaIssues'].to_f / sla[1]['totalIssues'].to_f ) * 100 %>
+        <table class="progress progress-5" style="width: 100%; height: 20px;">
+          <tbody>
+            <tr>
+              <td style="width: <%= percentClosed.to_f %>%;" class="closed"></td>
+              <td style="width: <%= percentOpenInSLA.to_f %>%;" class="done"></td>
+              <td style="width: <%= 100 - percentClosed.to_f - percentOpenInSLA.to_f %>%;" class="todo"></td>
+            </tr>
+          </tbody>
+        </table>
+        <br />
+        <div class="sla_info">
+          TOTAL: <%= sla[1]['totalIssues'] %>
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          CLOSED: <%= sla[1]['closedIssues'] %>
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          OPEN [ IN SLA ]: <%= sla[1]['openInSlaIssues'] %>
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          <% if sla[1]['type'] == "trackers" %>
+            <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&available_columns%5B%5D=parent&c%5B%5D=status&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=created_on&group_by=">
+          <% else %>
+            <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=priority_id&op%5Bpriority_id%5D=%3D&v%5Bpriority_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=">
+          <% end %>
+            OPEN [ PAST SLA ]: <%= sla[1]['openPastSlaIssues'] %>
+          </a>
+        </div>
+      <% else %>
+        <i>No issues are under this sla.</i>
+      <% end %>
+    </div>
+  <% end %>
+</div>
