@@ -89,7 +89,7 @@ class DchbxreportsController < ApplicationController
   def userHoldUp
     @userStats = {}
     issueStatus = IssueStatus.all
-    users = User.where('status = 1')
+    users = User.where('status = 1').order(:lastname)
     ##users = User.where('status = ?','active').or('status = ?', 'registered')
     users.each do |user|
       totalWaitTime = 0
