@@ -82,9 +82,14 @@ class DchbxreportsController < ApplicationController
   end
 
 
-  def quarter
+  def status
+    @issueStatuses = IssueStatus.where('is_closed = ?', false)
+    @users = User.all()
+    @issues = {}
+    @issueStatuses.each do |status|
+      @issues[status['id']] = Issue.where('closed_on IS NULL').where('status_id = ?',status['id']).order('updated_on ASC')
+    end
   end
-
 
   def userHoldUp
     @userStats = {}

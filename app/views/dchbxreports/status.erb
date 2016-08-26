@@ -1,0 +1,66 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'tooltipster/dist/css/tooltipster.bundle.min.css', :plugin => 'redmine_user_priority' %>
+  <%= stylesheet_link_tag 'tooltipster/dist/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css', :plugin => 'redmine_user_priority' %>
+  <%= javascript_include_tag 'tooltipster/dist/js/tooltipster.bundle.min.js', :plugin => 'redmine_user_priority' %>
+<% end %>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.report_status_issue').tooltipster({
+      theme: 'tooltipster-shadow',
+      animation: 'fade',
+      delay: 100,
+    });
+  });
+</script>
+
+<style>
+  .report_status {
+    float:left;
+    margin:10px;
+    width:100px;
+  }
+
+  .report_status_name {
+    font-weight:bold;
+    font-size:14px;
+    text-align:center;
+  }
+
+  .report_status_issue {
+    font-size:12px;
+    border:1px solid black;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    margin-top:5px;
+    line-height:14px;
+    padding:3px;
+    height:24px;
+    overflow:hidden;
+  }
+
+</style>
+
+<div class="report_statuses">
+  <% @issueStatuses.each do |status| %>
+    <div class="report_status">
+        <div class="report_status_name">
+          <%= status.name %>
+        </div>
+        <% @issues[status['id']].first(10).each do |issue| %>
+          <% issueAssignee = "nobody" %>
+          <% @users.each do |user| %>
+            <% if user['id'] == issue['assigned_to_id'] %>
+              <% issueAssignee = "#{user['firstname']} #{user['lastname']}" %>
+            <% end %>
+          <% end %>
+          <div class="report_status_issue" title="Last updated <%= distance_of_time_in_words(Time.new.to_i - issue['updated_on'].to_i) %> ago. Assigned to <%= issueAssignee %>.">
+            <a href="/redmine/issues/<%= issue['id'] %>"><%= issue['id'] %></a> <%= issue['subject'] %>
+          </div>
+        <% end %>
+        <div class="clear">&nbsp;</div>
+    </div>
+  <% end %>
+  <div class="clear">&nbsp;</div>
+  * This shows the top 10 open ticket for every open status, ordered by when an issue was last updated.
+</div>
