@@ -10,6 +10,8 @@
       theme: 'tooltipster-shadow',
       animation: 'fade',
       delay: 100,
+      contentAsHTML: true,
+
     });
   });
 </script>
@@ -28,18 +30,30 @@
   }
 
   .report_status_issue {
-    font-size:12px;
+    font-size:18px;
     border:1px solid black;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     margin-top:5px;
-    line-height:14px;
+    line-height:24px;
     padding:3px;
     height:24px;
     overflow:hidden;
   }
 
+  .tooltip_templates {
+    display: none;
+  }
+
+  .td-title {
+    font-weight:bold;
+    text-align:right;
+  }
+
 </style>
+
+<h2>Issue Status's</h2>
+<h3>Shows the top 10 longest time since updated issues for each status</h3>
 
 <div class="report_statuses">
   <% @issueStatuses.each do |status| %>
@@ -54,13 +68,32 @@
               <% issueAssignee = "#{user['firstname']} #{user['lastname']}" %>
             <% end %>
           <% end %>
-          <div class="report_status_issue" title="Last updated <%= distance_of_time_in_words(Time.new.to_i - issue['updated_on'].to_i) %> ago. Assigned to <%= issueAssignee %>.">
-            <a href="/redmine/issues/<%= issue['id'] %>"><%= issue['id'] %></a> <%= issue['subject'] %>
+          <div class="tooltip_templates">
+            <div id="tooltip-<%= issue['id'] %>">
+              <table>
+                <tbody>
+                  <tr>
+                    <td class="td-title">Subject</td>
+                    <td><%= issue['subject'] %></td>
+                  </tr>
+                  <tr>
+                    <td class="td-title">Assigned To</td>
+                    <td><%= issueAssignee %></td>
+                  </tr>
+                  <tr>
+                    <td class="td-title">Last Updated</td>
+                    <td><%= distance_of_time_in_words(Time.new.to_i - issue['updated_on'].to_i) %> ago</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="report_status_issue tooltip" data-tooltip-content="div#tooltip-<%= issue['id'] %>">
+            <a href="/redmine/issues/<%= issue['id'] %>"><%= issue['id'] %></a>
           </div>
         <% end %>
         <div class="clear">&nbsp;</div>
     </div>
   <% end %>
   <div class="clear">&nbsp;</div>
-  * This shows the top 10 open ticket for every open status, ordered by when an issue was last updated.
 </div>
