@@ -39,6 +39,8 @@
           &nbsp; &nbsp; &nbsp; &nbsp;
           CLOSED: <%= sla[1]['closedIssues'] %>
           &nbsp; &nbsp; &nbsp; &nbsp;
+          CLOSED [ IN LAST <%= distance_of_time_in_words(Setting.plugin_redmine_reports['slaShowProgressTime'].to_i).upcase %> ]: <%= sla[1]['closedIssuesInProgressTime'] %>
+          &nbsp; &nbsp; &nbsp; &nbsp;
           OPEN [ IN SLA ]: <%= sla[1]['openInSlaIssues'] %>
           &nbsp; &nbsp; &nbsp; &nbsp;
           <% if sla[1]['type'] == "trackers" %>

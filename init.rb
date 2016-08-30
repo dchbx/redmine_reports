@@ -7,6 +7,7 @@ Redmine::Plugin.register :redmine_reports do
   author_url 'http://ideacrew.com'
   menu :top_menu, :reports, { :controller => 'dchbxreports', :action => 'index' }, :caption => 'Reports'
   settings :default => {
+    'slaShowProgressTime'  =>  7*24*60*60,
     'slas' => [
       {
         'type'          =>  'trackers',

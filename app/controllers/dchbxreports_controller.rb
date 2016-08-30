@@ -27,6 +27,7 @@ class DchbxreportsController < ApplicationController
       @slaReport[id]['daysToResolve'] = sla['timeToResolve'] / (24*60*60)
       @slaReport[id]['totalIssues'] = 0
       @slaReport[id]['closedIssues'] = 0
+      @slaReport[id]['closedIssuesInProgressTime'] = 0
       @slaReport[id]['openInSlaIssues'] = 0
       @slaReport[id]['openPastSlaIssues'] = 0
 
@@ -61,6 +62,9 @@ class DchbxreportsController < ApplicationController
             if issue['status_id'].to_i == status['id'].to_i
               if status.is_closed
                 issueIsClosed = true
+                if issue['closed_on'].to_i > Time.new.to_i - Setting.plugin_redmine_reports['slaShowProgressTime'].to_i
+                  @slaReport[id]['closedIssuesInProgressTime'] = @slaReport[id]['closedIssuesInProgressTime'] + 1
+                end
               end
             end
           end
