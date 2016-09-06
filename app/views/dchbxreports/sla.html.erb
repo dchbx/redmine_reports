@@ -1,17 +1,76 @@
 <style>
   .sla {
-    margin-top:20px;
+    margin-top:25px;
     display:block;
   }
+
   .sla_name {
     font-weight:bold;
+    font-size:18px;
+    color:#606060;
   }
+
   .sla_info {
     font-size:10px;
     line-height: 16px;
     text-align:left;
     margin-bottom:20px;
   }
+
+  table.progress {
+    width: 100%;
+    height: 20px;
+  }
+
+  table.progress td {
+    background-color: none;
+    background-image: none;
+    background-repeat: repeat;
+    background-attachment: scroll;
+    background-position: 0%;
+  }
+
+  div.sla_info {
+    margin-top:10px;
+  }
+
+  div.sla_info div {
+      float:left;
+      margin-left:50px;
+      margin-right:50px;
+      padding:7px;
+      color:#FFFFFF;
+  }
+
+  div.sla_info div a {
+    color:#FFFFFF;
+    text-decoration: underline;
+  }
+
+  .closed, table.progress td.closed {
+    background-color:lightgrey;
+  }
+
+  .closedLastSevenDays {
+    background-color:lightgreen;
+  }
+
+  .openInSla {
+    background-color:goldenrod;
+    color:#000000;
+  }
+
+  .openPassSla {
+    background-color:indianred;
+  }
+
+  .clear {
+    clear:both;
+    display:block;
+    width:0px;
+    height:0px;
+  }
+
 </style>
 
 <h2>SLA Report</h2>
@@ -22,38 +81,50 @@
         <%= sla[1]['name'] %> - <%= sla[1]['daysToResolve'] %> Days
       </div>
       <% if sla[1]['totalIssues'] > 0 %>
-        <% percentClosed = ( sla[1]['closedIssues'].to_f / sla[1]['totalIssues'].to_f ) * 100 %>
+        <% percentClosed = ( (sla[1]['closedIssues'].to_f - sla[1]['closedIssuesInProgressTime'].to_f )/ sla[1]['totalIssues'].to_f ) * 100 %>
+        <% percentClosedLastSevenDays = ( sla[1]['closedIssuesInProgressTime'].to_f / sla[1]['totalIssues'].to_f ) * 100 %>
         <% percentOpenInSLA = ( sla[1]['openInSlaIssues'].to_f / sla[1]['totalIssues'].to_f ) * 100 %>
-        <table class="progress progress-5" style="width: 100%; height: 20px;">
+        <% percentOpenPassSla = ( sla[1]['openPastSlaIssues'].to_f / sla[1]['totalIssues'].to_f ) * 100 %>
+        <table class="progress">
           <tbody>
             <tr>
               <td style="width: <%= percentClosed.to_f %>%;" class="closed"></td>
-              <td style="width: <%= percentOpenInSLA.to_f %>%;" class="done"></td>
-              <td style="width: <%= 100 - percentClosed.to_f - percentOpenInSLA.to_f %>%;" class="todo"></td>
+              <td style="width: <%= percentClosedLastSevenDays.to_f %>%;" class="closedLastSevenDays"></td>
+              <td style="width: <%= percentOpenInSLA.to_f %>%;" class="openInSla"></td>
+              <td style="width: <%= percentOpenPassSla.to_f %>%;" class="openPassSla"></td>
             </tr>
           </tbody>
         </table>
         <br />
         <div class="sla_info">
-          TOTAL: <%= sla[1]['totalIssues'] %>
-          &nbsp; &nbsp; &nbsp; &nbsp;
-          CLOSED: <%= sla[1]['closedIssues'] %>
-          &nbsp; &nbsp; &nbsp; &nbsp;
-          CLOSED [ IN LAST <%= distance_of_time_in_words(Setting.plugin_redmine_reports['slaShowProgressTime'].to_i).upcase %> ]: <%= sla[1]['closedIssuesInProgressTime'] %>
-          &nbsp; &nbsp; &nbsp; &nbsp;
-          OPEN [ IN SLA ]: <%= sla[1]['openInSlaIssues'] %>
-          &nbsp; &nbsp; &nbsp; &nbsp;
-          <% if sla[1]['type'] == "trackers" %>
-            <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&available_columns%5B%5D=parent&c%5B%5D=status&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=created_on&group_by=">
-          <% else %>
-            <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=priority_id&op%5Bpriority_id%5D=%3D&v%5Bpriority_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=">
-          <% end %>
-            OPEN [ PAST SLA ]: <%= sla[1]['openPastSlaIssues'] %>
-          </a>
+          <div class="total">
+            Total: <%= sla[1]['totalIssues'] %>
+          </div>
+          <div class="closed">
+            Closed: <%= sla[1]['closedIssues'] %>
+          </div>
+          <div class="closedLastSevenDays">
+            Closed [ in last <%= distance_of_time_in_words(Setting.plugin_redmine_reports['slaShowProgressTime'].to_i).upcase %> ]: <%= sla[1]['closedIssuesInProgressTime'] %>
+          </div>
+          <div class="openInSla">
+            Open [ in sla ]: <%= sla[1]['openInSlaIssues'] %>
+          </div>
+          <div class="openPassSla">
+            <% if sla[1]['type'] == "trackers" %>
+              <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&available_columns%5B%5D=parent&c%5B%5D=status&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=created_on&group_by=">
+            <% else %>
+              <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=priority_id&op%5Bpriority_id%5D=%3D&v%5Bpriority_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=">
+            <% end %>
+              Open [ past sla ]: <%= sla[1]['openPastSlaIssues'] %>
+            </a>
+          </div>
         </div>
       <% else %>
         <i>No issues are under this sla.</i>
       <% end %>
+      <div class="clear">&nbsp;</div>
     </div>
+    <div class="clear">&nbsp;</div>
   <% end %>
 </div>
+<div class="clear">&nbsp;</div>

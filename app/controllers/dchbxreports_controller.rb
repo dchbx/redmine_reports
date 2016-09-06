@@ -6,6 +6,10 @@ class DchbxreportsController < ApplicationController
   def index
   end
 
+  def stakeholders
+    issueStatusIdForStakeholderReview = 8
+    @issuesInStakeholderReview = Issue.where('status_id = ?', issueStatusIdForStakeholderReview).order('assigned_to_id ASC, id ASC')
+  end
 
   def sla
     ## This can help us tell if an issue is closed or not
