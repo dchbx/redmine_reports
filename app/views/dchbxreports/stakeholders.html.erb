@@ -1,0 +1,31 @@
+<style>
+  .assigned_to_name {
+    margin-top:15px;
+    font-weight:bold;
+    font-size:16px;
+    color: #606060;
+  }
+  .issue {
+    margin-left:15px;
+  }
+</style>
+
+<div id="stakeholders">
+  <h2>Stakeholders and Their Issues</h2>
+  <% lastAssignedToId = "adkfj" %>
+  <% @issuesInStakeholderReview.each do |issue| %>
+    <% if issue.assigned_to_id != lastAssignedToId %>
+      <div class="assigned_to_name">
+        <% if issue.assigned_to_id.nil? %>
+          <i>nobody</i>
+        <% else %>
+          <%= issue.assigned_to.firstname %> <%= issue.assigned_to.lastname %>
+        <% end %>
+      </div>
+      <% lastAssignedToId = issue.assigned_to_id %>
+    <% end %>
+    <div class="issue">
+      <a href="https://devops.dchbx.org/redmine/issues/<%=issue.id%>"><%=issue.id%></a>: Last Updated <%=distance_of_time_in_words(Time.new.to_i - issue.updated_on.to_i) %> ago:  <%= issue.subject %>
+    </div>
+  <% end %>
+</div>
