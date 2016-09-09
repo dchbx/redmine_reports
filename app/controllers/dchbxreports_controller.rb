@@ -50,6 +50,10 @@ class DchbxreportsController < ApplicationController
           end
         end
       end
+      if sla['type'] == "issue_status"
+        myIssueName = IssueStatus.where('id = ?',sla['id'].to_i).first.name
+        @slaReport[id]['name'] = "Issue Status: #{myIssueName}"
+      end
       ##loop our issues and find our data
       issues.each do |issue|
         if (
@@ -59,6 +63,10 @@ class DchbxreportsController < ApplicationController
         (
           sla['type'] == "enumerations" &&
           issue['priority_id'].to_i == sla['id'].to_i
+        ) ||
+        (
+          sla['type'] == "issue_status" &&
+          issue['status_id'].to_i == sla['id'].to_i
         )
           ##figure out if the issue is currently closed or not
           issueIsClosed = false
@@ -74,7 +82,12 @@ class DchbxreportsController < ApplicationController
           end
           ##figure out if the issue is in our SLA period
           if issueIsClosed == false
-            if ( issue['created_on'].to_i + sla['timeToResolve'].to_i ) < Time.new.to_i
+            if to_boolean(sla['sinceCreation'])
+              timeSince = issue['created_on'].to_i + sla['timeToResolve'].to_i
+            else
+              timeSince = issue['updated_on'].to_i + sla['timeToResolve'].to_i
+            end
+            if timeSince < Time.new.to_i
               @slaReport[id]['openPastSlaIssues'] = @slaReport[id]['openPastSlaIssues'] + 1
             else
               @slaReport[id]['openInSlaIssues'] = @slaReport[id]['openInSlaIssues'] + 1
@@ -135,5 +148,8 @@ class DchbxreportsController < ApplicationController
   def i
     @i ||= -1
     @i += 1
+  end
+  def to_boolean(str)
+    str == 'true'
   end
 end

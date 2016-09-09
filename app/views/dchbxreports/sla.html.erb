@@ -1,4 +1,8 @@
 <style>
+  div#header {
+    display: none;
+  }
+
   .sla {
     margin-top:25px;
     display:block;
@@ -6,7 +10,7 @@
 
   .sla_name {
     font-weight:bold;
-    font-size:18px;
+    font-size:14px;
     color:#606060;
   }
 
@@ -19,7 +23,7 @@
 
   table.progress {
     width: 100%;
-    height: 20px;
+    height: 8px;
   }
 
   table.progress td {
@@ -38,7 +42,7 @@
       float:left;
       margin-left:50px;
       margin-right:50px;
-      padding:7px;
+      padding:3px;
       color:#FFFFFF;
   }
 
@@ -111,9 +115,11 @@
           </div>
           <div class="openPassSla">
             <% if sla[1]['type'] == "trackers" %>
-              <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&available_columns%5B%5D=parent&c%5B%5D=status&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=created_on&group_by=">
-            <% else %>
-              <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=priority_id&op%5Bpriority_id%5D=%3D&v%5Bpriority_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=">
+              <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&available_columns%5B%5D=parent&c%5B%5D=status&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=created_on&group_by=" style="color:white;">
+            <% elsif sla[1]['type'] == "enumerations"  %>
+              <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=priority_id&op%5Bpriority_id%5D=%3D&v%5Bpriority_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=" style="color:white;">
+            <% elsif sla[1]['type'] == "issue_status" %>
+              <a href="/redmine/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=%3D&v%5Bstatus_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=updated_on&op%5Bupdated_on%5D=%3Ct-&v%5Bupdated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=" style="color:white;">
             <% end %>
               Open [ past sla ]: <%= sla[1]['openPastSlaIssues'] %>
             </a>
