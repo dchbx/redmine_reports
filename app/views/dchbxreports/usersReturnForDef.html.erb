@@ -1,0 +1,40 @@
+<style>
+  div.user div.user_name {
+    margin-top:15px;
+    font-weight:bold;
+    font-size:16px;
+  }
+
+  div.user div.user_info {
+    float:left;
+    margin-left:25px;
+  }
+
+  .clear {
+    clear:both;
+    display:block;
+    width:0px;
+    height:0px;
+  }
+</style>
+
+<% @output.each do |user_id,user_info| %>
+  <% unless user_info['user'].nil?  || user_info['user']['firstname'] == "" %>
+    <div class="user">
+      <div class="user_name">
+        <%=user_info['user']['firstname'] %> <%=user_info['user']['lastname'] %>
+        <div class="clear">&nbsp;</div>
+      </div>
+      <div class="user_info">
+        # of RFDs: <%=user_info['rfd_count'] %>
+      </div>
+      <div class="user_info">
+        # of Issues: <%=user_info['issue_count'] %>
+      </div>
+      <div class="user_info">
+        % RFD: <%=user_info['per'].to_i%>%
+      </div>
+      <div class="clear">&nbsp;</div>
+    </div>
+  <% end %>
+<% end %>

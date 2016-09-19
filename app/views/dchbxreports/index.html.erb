@@ -1,7 +1,66 @@
-<h2>Reports</h2>
-<ul>
-  <li><a href="./reports/sla">SLA Report</a></li>
-  <li><a href="./reports/holdup">User Wait Time</a></li>
-  <li><a href="./reports/status">Issue Status</a></li>
-  <li><a href="./reports/stakeholders">Stakeholder Issues</a></li>
-</ul>
+<style>
+  div#custom_queries {
+    float:right;
+    width:50%;
+  }
+  div#custom_queries b {
+    font-size:125%;
+  }
+  div#custom_queries ul li ul {
+    margin:0;
+    padding:0;
+  }
+</style>
+
+<div id="custom_queries">
+  <h2>Custom Queries</h2>
+  <ul>
+    <% current_project_id = false %>
+    <% @cq.each do |q| %>
+      <% unless current_project_id == q.project_id %>
+        <% unless current_project_id = false %>
+          </ul></li>
+        <% end %>
+        <% current_project_id = q.project_id %>
+        <% if q.project_id.nil? %>
+          <li><b><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues/">GLOBAL</a></b><ul>
+        <% else %>
+          <li><b><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/projects/<%= Project.where(id: q.project_id).first.identifier %>/issues/"><%= Project.where(id: q.project_id).first.name %></a></b><ul>
+        <% end %>
+      <% end %>
+      <li>
+        <% if q.project_id.nil? %>
+          <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues?query_id=<%= q.id %>">
+        <% else %>
+          <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/projects/<%= Project.where(id: q.project_id).first.identifier %>/issues?query_id=<%= q.id %>">
+        <% end %>
+          <%= q.name %>
+        </a>
+      </li>
+    <% end %>
+  </ul></li></ul>
+</div>
+
+<div id="reports">
+  <h2>Reports</h2>
+  <ul>
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/sla">SLA Report</a></li>
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/holdup">Average User Que Wait Time</a></li>
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/status">Oldest Issues Per Stats</a></li>
+    <!--<li><a href="./reports/stakeholders">Stakeholder Issues</a></li>-->
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/duedates">Enroll Roadmap Progress</a></li>
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/userpriorities/activity">Daily User Activity</a></li>
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/usersReturnForDef">Returned for Deficiencies Stats Per User</a></li>
+  </ul>
+</div>
+
+<div id="extReports">
+  <h2>External Reports</h2>
+  <ul>
+    <li><a href="https://github.com/dchbx/enroll/pulls?q=is%3Aopen+is%3Apr+sort%3Aupdated-asc">GitHub Enroll Pull Requests</a></li>
+    <li><a href="https://mixpanel.com/">Mixpanel</a></li>
+    <li><a href="https://devops.dchbx.org/jenkins/job/enroll-all/">Jenkins <i>enroll-all</i> Job Status</a></li>
+    <li><a href="https://graylog-preprod.dchbx.org/search?rangetype=relative&fields=message%2Csource&width=1138&relative=2592000&q=level%3A2+AND+NOT+full_message%3A%22ActionController%3A%3ARoutingError*%22#fields=message%2Csource">PreProd Graylog Error Log</a></li>
+    <li><a href="https://graylog-prod.dchbx.org/search?rangetype=relative&fields=message%2Csource&width=1138&relative=2592000&q=level%3A2+AND+NOT+full_message%3A%22ActionController%3A%3ARoutingError*%22#fields=message%2Csource">Prod Graylog Error Log</a></li>
+  </ul>
+</div>

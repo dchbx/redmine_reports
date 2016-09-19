@@ -1,15 +1,90 @@
 class DchbxreportsController < ApplicationController
   unloadable
-
-
+  helper :queries
+  include QueriesHelper
 
   def index
+    @cq = IssueQuery.where(visibility: 2).order('project_id ASC')
   end
 
-  def stakeholders
-    issueStatusIdForStakeholderReview = 8
-    @issuesInStakeholderReview = Issue.where('status_id = ?', issueStatusIdForStakeholderReview).order('assigned_to_id ASC, id ASC')
+  def usersReturnForDef
+    @output = {}
+    journalDetails = JournalDetail.where(value: 6).where(property: "attr").where(prop_key: "status_id")
+    journalDetails.each do |jd|
+      user_id = false
+      jd.journal.details.where(prop_key: 'assigned_to_id').each do |jd_user|
+        user_id = jd_user.value
+      end
+      unless user_id == false
+        if @output[user_id].nil?
+          @output[user_id] = {}
+          @output[user_id]['issue_count'] = {};
+          JournalDetail.where(value: user_id).where(property: "attr").where(prop_key: "assigned_to_id").each do |jdd|
+            @output[user_id]['issue_count'][jdd.journal.journalized_id] = true;
+          end
+          @output[user_id]['rfd_count'] = 1
+        elsif @output[user_id]['rfd_count'].nil?
+          @output[user_id]['rfd_count'] = 1
+        else
+          @output[user_id]['rfd_count'] = @output[user_id]['rfd_count'] + 1
+        end
+      end
+    end
+    @output.each do |user_id,user_info|
+      @output[user_id]['user'] = User.where(id: user_id).where(status: 1).first
+      @output[user_id]['issue_count'] = @output[user_id]['issue_count'].count()
+      @output[user_id]['per'] = (@output[user_id]['rfd_count'].to_f / @output[user_id]['issue_count'].to_f ) * 100
+    end
   end
+
+  def duedates
+    @output = {
+      'Issues Not Started Past Start Date' => {
+        'total' => {
+          'query_id' => 190,
+        },
+        'left' => {
+          'query_id' => 191,
+        }
+      },
+      'Issues Past Due' =>{
+        'total' => {
+          'query_id' => 188
+        },
+        'left' => {
+          'query_id' => 189
+        }
+      },
+      'Issues Closed' => {
+        'total' => {
+          'query_id' => 192
+        }
+      },
+      'Issues In Flight' => {
+        'total' => {
+          'query_id' => 195
+        }
+      }
+    }
+    @output.each do |barTitle,barPercents|
+      unless @output[barTitle]['total'].nil?
+        @output[barTitle]['total']['query'] = IssueQuery.find(@output[barTitle]['total']['query_id'])
+        @output[barTitle]['total']['issue_count'] = @output[barTitle]['total']['query'].issue_count
+      end
+      unless @output[barTitle]['left'].nil?
+        @output[barTitle]['left']['query'] = IssueQuery.find(@output[barTitle]['left']['query_id'])
+        @output[barTitle]['left']['issue_count'] = @output[barTitle]['left']['query'].issue_count
+        ##figure out percents!
+        @output[barTitle]['percentDone'] = ( @output[barTitle]['left']['issue_count'].to_f / @output[barTitle]['total']['issue_count'].to_f ) * 100
+        @output[barTitle]['percentLeft'] = 100 - @output[barTitle]['percentDone'].to_f
+      end
+    end
+  end
+
+  # def stakeholders
+  #   issueStatusIdForStakeholderReview = 8
+  #   @issuesInStakeholderReview = Issue.where('status_id = ?', issueStatusIdForStakeholderReview).order('assigned_to_id ASC, id ASC')
+  # end
 
   def sla
     ## This can help us tell if an issue is closed or not

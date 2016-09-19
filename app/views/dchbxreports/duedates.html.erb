@@ -1,0 +1,48 @@
+<style>
+  div#header {
+    display: none;
+  }
+  div.stat {
+    margin-top:20px;
+  }
+  div.stat h3 {
+    margin:0;
+    padding:0;
+  }
+  table.progress {
+    width: 100%;
+    height: 10px;
+  }
+</style>
+
+<h2>Progress Report for Project <i>hbx_enroll_2016_roadmap</i></h2>
+<% @output.each do |barTitle,barInfo| %>
+  <div class="stat">
+    <h3>
+      <% if barInfo['left'].nil? %>
+        <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/projects/hbx_enroll_2016_roadmap/issues?query_id=<%= barInfo['total']['query_id'] %>">
+      <% else %>
+        <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/projects/hbx_enroll_2016_roadmap/issues?query_id=<%= barInfo['left']['query_id'] %>">
+      <% end %>
+        <%= barTitle %> -
+        <% if barInfo['left'].nil? %>
+          <%= barInfo['total']['issue_count'].to_s %>
+        <% else %>
+          <%= barInfo['left']['issue_count'].to_s %>
+        <% end %>
+      </a>
+    </h3>
+    <% unless barInfo['left'].nil? %>
+      <table class="progress">
+        <tbody>
+          <tr>
+            <td style="width: <%= barInfo['percentDone'].to_f %>%;" class="closed"></td>
+            <td style="width: <%= barInfo['percentLeft'].to_f %>%;" class="todo"></td>
+            <td><%= barInfo['percentDone'].to_i %>%</td>
+          </tr>
+        </tbody>
+      </table>
+      <i><%= barInfo['total']['issue_count'].to_s %> total</i>
+    <% end %>
+  </div>
+<% end %>
