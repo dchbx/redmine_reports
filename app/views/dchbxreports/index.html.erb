@@ -7,8 +7,10 @@
     font-size:125%;
   }
   div#custom_queries ul li ul {
-    margin:0;
+    margin-bottom:10px;
+    margin-left:10px;
     padding:0;
+    display:block;
   }
 </style>
 
@@ -18,7 +20,7 @@
     <% current_project_id = false %>
     <% @cq.each do |q| %>
       <% unless current_project_id == q.project_id %>
-        <% unless current_project_id = false %>
+        <% unless current_project_id == false %>
           </ul></li>
         <% end %>
         <% current_project_id = q.project_id %>
