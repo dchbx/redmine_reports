@@ -1,0 +1,174 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.min.js"></script>
+<style>
+  canvas {
+    display:inline-block;
+  }
+</style>
+
+<%
+teamGroups = Setting.plugin_redmine_user_priority['rup_teamGroups'].split(/\s*,\s*/)
+totalIssueCount = @output['totalIssuesWithWBSandStoryPoints'].issue_count
+chart_labels = "["
+chart_openTicketsData = "["
+chart_closedTicketsData = "["
+weekOf = Date.today.beginning_of_quarter.beginning_of_week
+chart_teamBurndown = {}
+teamGroups.each do |team|
+  chart_teamBurndown[team] = {}
+  chart_teamBurndown[team]['openTicketsData'] = "["
+  chart_teamBurndown[team]['closedTicketsData'] = "["
+end
+while weekOf < Date.today.end_of_quarter.end_of_week do
+  startTime = weekOf
+  endTime = weekOf + 2.weeks
+  chart_labels << "\"#{startTime.strftime("%m/%d")} - #{endTime.strftime("%m/%d")}\", "
+  openIssues = 0
+  closedIssues = 0
+  teamBurndown = {}
+  teamGroups.each do |team|
+    teamBurndown[team] = {}
+    teamBurndown[team]['open'] = 0
+    teamBurndown[team]['closed'] = 0
+  end
+  @output['totalIssuesWithWBSandStoryPoints'].issues.each do |issue|
+    if issue.closed_on.nil? || issue.closed_on > startTime
+      openIssues = openIssues + issue.custom_values.where(custom_field_id:24).first.value.to_i
+    else
+      closedIssues = closedIssues + issue.custom_values.where(custom_field_id:24).first.value.to_i
+    end
+    issue.assigned_to.groups.each do |group|
+      if teamGroups.include? group.id.to_s
+        if issue.closed_on.nil? || issue.closed_on > startTime
+          teamBurndown[group.id.to_s]['open'] = teamBurndown[group.id.to_s]['open'] + issue.custom_values.where(custom_field_id:24).first.value.to_i
+        else
+          teamBurndown[group.id.to_s]['closed'] = teamBurndown[group.id.to_s]['closed'] + issue.custom_values.where(custom_field_id:24).first.value.to_i
+        end
+      end
+    end
+  end
+  chart_openTicketsData << "\"#{openIssues.to_s}\","
+  chart_closedTicketsData << "\"#{closedIssues.to_s}\","
+  teamGroups.each do |team|
+    chart_teamBurndown[team]['openTicketsData'] << "\"#{teamBurndown[team]['open'].to_s}\","
+    chart_teamBurndown[team]['closedTicketsData'] << "\"#{teamBurndown[team]['closed'].to_s}\","
+  end
+  weekOf = endTime
+end
+
+chart_labels << "]"
+chart_openTicketsData << "]"
+chart_closedTicketsData << "]"
+teamGroups.each do |team|
+  chart_teamBurndown[team]['openTicketsData'] << "]"
+  chart_teamBurndown[team]['closedTicketsData'] << "]"
+end
+
+%>
+
+<canvas id="overallBurndown" width="400" height="400"></canvas>
+<script>
+    var overallBurndown = new Chart($("canvas#overallBurndown"),{
+      type: 'bar',
+      data: {
+        labels: <%= raw chart_labels%>,
+        datasets: [
+          {
+            label: "Open Story Points",
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255,99,132,1)',
+            data: <%= raw chart_openTicketsData %>,
+          },
+          {
+            label: "Completed Story Points",
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            data: <%= raw chart_closedTicketsData %>,
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: true,
+        title: {
+            display: true,
+            text: 'Overall Burndown'
+        },
+        legend: {
+          onClick: function(event, legendItem){
+            console.log(event, legendItem);
+          }
+        },
+        scales: {
+          xAxes: [
+            {
+              stacked: true,
+            },
+          ],
+          yAxes: [
+            {
+              stacked: true,
+              ticks: {
+                min: 0,
+                stepSize:1,
+              }
+            }
+          ]
+        }
+      },
+    })
+</script>
+
+<% teamGroups.each do |team| %>
+  <canvas id="Burndown<%= team %>" width="400" height="400"></canvas>
+  <script>
+      var Burndown<%= team %> = new Chart($("canvas#Burndown<%= team %>"),{
+        type: 'bar',
+        data: {
+          labels: <%= raw chart_labels%>,
+          datasets: [
+            {
+              label: "Open Story Points",
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: 'rgba(255,99,132,1)',
+              data: <%= raw chart_teamBurndown[team]['openTicketsData'] %>,
+            },
+            {
+              label: "Completed Story Points",
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              data: <%= raw chart_teamBurndown[team]['closedTicketsData'] %>,
+            },
+          ],
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: true,
+          title: {
+              display: true,
+              text: 'Team <%=Group.where(id:team).last.name %> Burndown'
+          },
+          legend: {
+            onClick: function(event, legendItem){
+              console.log(event, legendItem);
+            }
+          },
+          scales: {
+            xAxes: [
+              {
+                stacked: true,
+              },
+            ],
+            yAxes: [
+              {
+                stacked: true,
+                ticks: {
+                  min: 0,
+                  stepSize:1,
+                }
+              }
+            ]
+          }
+        },
+      })
+  </script>
+<% end %>

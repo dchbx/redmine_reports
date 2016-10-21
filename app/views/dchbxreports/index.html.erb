@@ -52,7 +52,8 @@
     <!--<li><a href="./reports/stakeholders">Stakeholder Issues</a></li>-->
     <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/duedates">Enroll Roadmap Progress</a></li>
     <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/userpriorities/activity">Daily User Activity</a></li>
-    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/usersReturnForDef">Returned for Deficiencies Stats Per User</a></li>
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/usersReturnForDef">Returned for Deficiencies Stats</a></li>
+    <li><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/reports/velocity">Burn Down</a></li>
   </ul>
 </div>
 

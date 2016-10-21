@@ -14,10 +14,9 @@
     color:#606060;
   }
 
-  .sla_info {
+  div.sla_info {
     font-size:10px;
     line-height: 16px;
-    text-align:left;
     margin-bottom:20px;
   }
 
@@ -43,7 +42,8 @@
       margin-left:50px;
       margin-right:50px;
       padding:3px;
-      color:#FFFFFF;
+      width:100px;
+      text-align:center;
   }
 
   div.sla_info div a {
@@ -51,12 +51,18 @@
     text-decoration: underline;
   }
 
+  .total {
+    color:#000000;
+  }
+
   .closed, table.progress td.closed {
     background-color:lightgrey;
+    color:#000000;
   }
 
   .closedLastSevenDays {
     background-color:lightgreen;
+    color:#000000;
   }
 
   .openInSla {
@@ -66,6 +72,7 @@
 
   .openPassSla {
     background-color:indianred;
+    color:#FFFFFF;
   }
 
   .clear {
@@ -115,11 +122,11 @@
           </div>
           <div class="openPassSla">
             <% if sla[1]['type'] == "trackers" %>
-              <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&available_columns%5B%5D=parent&c%5B%5D=status&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=created_on&group_by=" style="color:white;">
+              <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=tracker_id&op%5Btracker_id%5D=%3D&v%5Btracker_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f[]=project_id&op[project_id]==&v[project_id][]=12&v[project_id][]=26&v[project_id][]=33&v[project_id][]=21&v[project_id][]=23&v[project_id][]=24&v[project_id][]=94&v[project_id][]=98&v[project_id][]=97&v[project_id][]=22&v[project_id][]=16&v[project_id][]=25&v[project_id][]=20&f%5B%5D=&available_columns%5B%5D=parent&c%5B%5D=status&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=created_on&group_by=" style="color:white;">
             <% elsif sla[1]['type'] == "enumerations"  %>
-              <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=priority_id&op%5Bpriority_id%5D=%3D&v%5Bpriority_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=" style="color:white;">
+              <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=%3Ct-&v%5Bcreated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=priority_id&op%5Bpriority_id%5D=%3D&v%5Bpriority_id%5D%5B%5D=<%= sla[1]['id'] %>&f[]=project_id&op[project_id]==&v[project_id][]=12&v[project_id][]=26&v[project_id][]=33&v[project_id][]=21&v[project_id][]=23&v[project_id][]=24&v[project_id][]=94&v[project_id][]=98&v[project_id][]=97&v[project_id][]=22&v[project_id][]=16&v[project_id][]=25&v[project_id][]=20&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=" style="color:white;">
             <% elsif sla[1]['type'] == "issue_status" %>
-              <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=%3D&v%5Bstatus_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=updated_on&op%5Bupdated_on%5D=%3Ct-&v%5Bupdated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=" style="color:white;">
+              <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues?utf8=%E2%9C%93&set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=%3D&v%5Bstatus_id%5D%5B%5D=<%= sla[1]['id'] %>&f%5B%5D=updated_on&op%5Bupdated_on%5D=%3Ct-&v%5Bupdated_on%5D%5B%5D=<%= sla[1]['daysToResolve'] %>&f[]=project_id&op[project_id]==&v[project_id][]=12&v[project_id][]=26&v[project_id][]=33&v[project_id][]=21&v[project_id][]=23&v[project_id][]=24&v[project_id][]=94&v[project_id][]=98&v[project_id][]=97&v[project_id][]=22&v[project_id][]=16&v[project_id][]=25&v[project_id][]=20&f%5B%5D=&c%5B%5D=project&c%5B%5D=tracker&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&group_by=" style="color:white;">
             <% end %>
               Open [ past sla ]: <%= sla[1]['openPastSlaIssues'] %>
             </a>

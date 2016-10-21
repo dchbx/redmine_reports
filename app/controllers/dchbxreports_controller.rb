@@ -7,6 +7,11 @@ class DchbxreportsController < ApplicationController
     @cq = IssueQuery.where(visibility: 2).order('project_id ASC')
   end
 
+  def velocity
+    @output = {}
+    @output['totalIssuesWithWBSandStoryPoints'] = IssueQuery.find(208)
+  end
+
   def usersReturnForDef
     @output = {}
     journalDetails = JournalDetail.where(value: 6).where(property: "attr").where(prop_key: "status_id")
@@ -35,6 +40,17 @@ class DchbxreportsController < ApplicationController
       @output[user_id]['issue_count'] = @output[user_id]['issue_count'].count()
       @output[user_id]['per'] = (@output[user_id]['rfd_count'].to_f / @output[user_id]['issue_count'].to_f ) * 100
     end
+    ## figure out thrashing per issue
+    @issueOut = {}
+    Issue.where(closed_on: nil).where(project_id:[24,94]).each do |issue|
+      @issueOut[issue.id] = {}
+      @issueOut[issue.id]['thrashCount'] = 0
+      @issueOut[issue.id]['issue'] = issue
+      issue.journals.each do |journal|
+        @issueOut[issue.id]['thrashCount'] = @issueOut[issue.id]['thrashCount'] + journal.details.where(prop_key:'status_id').where(property: "attr").where(value:[9,33,28,6,8,4]).count
+      end
+    end
+    @issueOut.sort_by {|key,value| value['thrashCount'].to_i }
   end
 
   def duedates
@@ -79,6 +95,9 @@ class DchbxreportsController < ApplicationController
         @output[barTitle]['percentLeft'] = 100 - @output[barTitle]['percentDone'].to_f
       end
     end
+    ##bottom issue list
+    @issueList = Issue.where(project_id:94).where(fixed_version_id:107).order('status_id').order('updated_on DESC')
+    @bugIssueList = Issue.where(project_id:24).order('status_id')
   end
 
   # def stakeholders
@@ -90,7 +109,8 @@ class DchbxreportsController < ApplicationController
     ## This can help us tell if an issue is closed or not
     issueStatus = IssueStatus.all
     ## This gives us all the issues, to make sure we don't have to call the db X times
-    issues = Issue.all
+    @projects_to_track = [12,26,33,20,21,22,16,23,24,94,98,97,25]
+    issues = Issue.where(project_id: @projects_to_track)
     ## Trackers
     trackers = Tracker.all
     ## Issue priorities
@@ -158,9 +178,9 @@ class DchbxreportsController < ApplicationController
           ##figure out if the issue is in our SLA period
           if issueIsClosed == false
             if to_boolean(sla['sinceCreation'])
-              timeSince = issue['created_on'].to_i + sla['timeToResolve'].to_i
+              timeSince = issue['created_on'].beginning_of_day.to_i + sla['timeToResolve'].to_i
             else
-              timeSince = issue['updated_on'].to_i + sla['timeToResolve'].to_i
+              timeSince = issue['updated_on'].beginning_of_day.to_i + sla['timeToResolve'].to_i
             end
             if timeSince < Time.new.to_i
               @slaReport[id]['openPastSlaIssues'] = @slaReport[id]['openPastSlaIssues'] + 1
@@ -183,7 +203,7 @@ class DchbxreportsController < ApplicationController
     @users = User.all()
     @issues = {}
     @issueStatuses.each do |status|
-      @issues[status['id']] = Issue.where('closed_on IS NULL').where('status_id = ?',status['id']).order('updated_on ASC')
+      @issues[status['id']] = Issue.where('closed_on IS NULL').where('status_id = ?',status['id']).where(project_id: [24,94]).order('updated_on ASC')
     end
   end
 
@@ -195,7 +215,7 @@ class DchbxreportsController < ApplicationController
     users.each do |user|
       totalWaitTime = 0
       userIssues = {}
-      issues = Issue.where("assigned_to_id = ?",user['id'])
+      issues = Issue.where("assigned_to_id = ?",user['id']).where(project_id: [24,94])
       issues.each do |issue|
         ##figure out if the issue is currently closed or not
         issueIsClosed = false

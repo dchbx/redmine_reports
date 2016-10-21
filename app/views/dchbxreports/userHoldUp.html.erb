@@ -31,6 +31,7 @@
             avgWaitTimeString = distance_of_time_in_words(avgWaitTime)
             totalWaitTimeString = distance_of_time_in_words(user[1]['totalWaitTime'])
           end
+          unless user[1]['issues'].count == 0
         %>
         <tr>
           <td><%= user[1]['user']['lastname'] %></td>
@@ -43,6 +44,7 @@
             </a>
           </td>
         </tr>
+      <% end %>
       <% end %>
     </tbody>
   </table>

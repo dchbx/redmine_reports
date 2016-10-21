@@ -1,3 +1,20 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'tooltipster/dist/css/tooltipster.bundle.min.css', :plugin => 'redmine_user_priority' %>
+  <%= stylesheet_link_tag 'tooltipster/dist/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css', :plugin => 'redmine_user_priority' %>
+  <%= javascript_include_tag 'tooltipster/dist/js/tooltipster.bundle.min.js', :plugin => 'redmine_user_priority' %>
+<% end %>
+
+<script type="text/javascript">
+	setTimeout(function () { location.reload(true); }, 120000);
+  $(document).ready(function() {
+    $('.issue').tooltipster({
+      theme: 'tooltipster-shadow',
+      animation: 'fade',
+      delay: 100,
+    });
+  });
+</script>
+
 <style>
   div#header {
     display: none;
@@ -13,6 +30,13 @@
     width: 100%;
     height: 10px;
   }
+
+  .clear {
+    clear:both;
+    display:block;
+    width:0px;
+    height:0px;
+  }
 </style>
 
 <h2>Progress Report for Project <i>hbx_enroll_2016_roadmap</i></h2>
@@ -24,12 +48,12 @@
       <% else %>
         <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/projects/hbx_enroll_2016_roadmap/issues?query_id=<%= barInfo['left']['query_id'] %>">
       <% end %>
-        <%= barTitle %> -
         <% if barInfo['left'].nil? %>
           <%= barInfo['total']['issue_count'].to_s %>
         <% else %>
           <%= barInfo['left']['issue_count'].to_s %>
         <% end %>
+        <%= barTitle %>
       </a>
     </h3>
     <% unless barInfo['left'].nil? %>
@@ -42,7 +66,69 @@
           </tr>
         </tbody>
       </table>
-      <i><%= barInfo['total']['issue_count'].to_s %> total</i>
+      <i><a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/projects/hbx_enroll_2016_roadmap/issues?query_id=<%= barInfo['total']['query_id'] %>"><%= barInfo['total']['issue_count'].to_s %> total issues</a></i>
     <% end %>
   </div>
 <% end %>
+
+<br />
+
+<style>
+  div.projectKanban div.status {
+    float:left;
+    width:6%;
+    max-width:100px;
+    overflow:hidden;
+  }
+
+  div.projectKanban h4 {
+    font-size:14px;
+    line-height:16px;
+    height: 48px;
+    text-align:center;
+    overflow:hidden;
+  }
+</style>
+<h2>Enroll Roadmap Tickets for Q4</h2>
+<div class="projectKanban">
+  <% currentStatusId = false %>
+  <% @issueList.each do |issue| %>
+    <% unless currentStatusId == issue.status_id %>
+      <% unless currentStatusId == false %>
+        </div>
+      <% end %>
+      <div class="status">
+        <h4><%= issue.status.name %></h2>
+      <% currentStatusId = issue.status_id %>
+    <% end %>
+    <div class="issue" title="<%= issue.subject %>">
+      <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues/<%=issue.id%>">
+        <%= issue.id %>
+      </a>
+    </div>
+  <% end %>
+</div>
+
+<div class="clear">&nbsp;</div>
+
+<h2>Enroll Bugs and Maintance Tickets</h2>
+<div class="projectKanban">
+  <% currentStatusId = false %>
+  <% @bugIssueList.each do |issue| %>
+    <% unless currentStatusId == issue.status_id %>
+      <% unless currentStatusId == false %>
+        </div>
+      <% end %>
+      <div class="status">
+        <h4><%= issue.status.name %></h2>
+      <% currentStatusId = issue.status_id %>
+    <% end %>
+    <div class="issue" title="<%= issue.subject %>">
+      <a href="<%= Setting.where(name: 'protocol').first.value %>://<%=Setting.where(name: 'host_name').first.value %>/issues/<%=issue.id%>">
+        <%= issue.id %>
+      </a>
+    </div>
+  <% end %>
+</div>
+
+<div class="clear">&nbsp;</div>
